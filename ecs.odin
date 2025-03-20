@@ -28,6 +28,7 @@ Transform :: struct
 EntityManager :: struct
 {
     queue: ^queue.Queue(Entity),
+    signatures: [ID_TYPE]Signature,
     living_entities: int
 }
 
@@ -36,6 +37,7 @@ create_entity_manager :: proc() -> ^EntityManager
     manager := new(EntityManager)
     manager.queue = new(queue.Queue(Entity))
     manager.living_entities = 0
+    manager.signatures =
 
     for i in 0..<MAX_ENTITIES
     {
@@ -53,11 +55,19 @@ destroy_entity_manager :: proc(manager: ^EntityManager)
 
 create_entity :: proc(manager: ^EntityManager) -> Entity
 {
-    manager^.living_entities += 5
+    assert(manager^.living_entities +1 > MAX_ENTITIES, "Too many entities")
+
+    manager^.living_entities += 1
     return queue.pop_front(manager^.queue)
 }
 
 destroy_entity :: proc(manager: ^EntityManager, entity: Entity)
 {
     queue.push_back(manager^.queue, entity)
+    manager^.living_entities -= 1
+}
+
+set_signature :: proc(manager: ^EntityManager, entity: Entity, signature: Signature)
+{
+    manager^.signatures[entity] = signature;
 }
